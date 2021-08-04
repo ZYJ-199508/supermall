@@ -2,13 +2,13 @@
   <swiper>
       <swiper-item v-for="(item,index) in banners" :key="index">
         <a :href="item.link">
-          <img :src="item.image" >
+          <img :src="item.image" alt="" @load="imageLoad"> 
         </a>
       </swiper-item>
     </swiper>
 </template>
 
-<script>
+<script> 
   import {Swiper,SwiperItem} from 'components/common/swiper'
 
   export default {
@@ -19,6 +19,21 @@
         default() {
           return []
         }
+      }
+    },
+    data(){
+      return{
+        testImage:false
+      }
+    },
+    methods:{
+      imageLoad(){
+        if (!this.testImage){
+          this.$emit('useImgeSwi')
+          this.testImage = true
+        }
+        
+        // console.log('---');
       }
     },
     components:{

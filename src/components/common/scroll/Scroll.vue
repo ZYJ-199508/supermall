@@ -41,12 +41,16 @@
     },
     methods:{
       useScrollTo(x, y, time = 300){
-        this.scroll.scrollTo(x,y,time)
+        this.scroll && this.scroll.scrollTo(x,y,time)
       },
       usefinishPullUp(){
         setTimeout(() => {
-          this.scroll.finishPullUp()
+          this.scroll && this.scroll.finishPullUp()
         }, 1000);
+      },
+      useRefresh(){
+        console.log('-----');
+        this.scroll && this.scroll.refresh()
       }
     }
   }
