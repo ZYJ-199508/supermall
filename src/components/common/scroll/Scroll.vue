@@ -32,7 +32,6 @@
         click:true
       })
       this.scroll.on('scroll',(position)=>{
-        // console.log(position);
         this.$emit('scroll',position)
       })
       this.scroll.on('pullingUp',()=>{
@@ -49,10 +48,13 @@
         }, 1000);
       },
       useRefresh(){
-        console.log('-----');
+        // console.log('-----');
         this.scroll && this.scroll.refresh()
+      },
+      useScrollY(){
+        return this.scroll ? this.scroll.y : 0
       }
-    }
+    } 
   }
 </script>
 

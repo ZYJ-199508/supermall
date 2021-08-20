@@ -1,6 +1,7 @@
 <template>
-  <div class="goods-item">
-    <img :src="goodsItem.show.img" alt="" @load= "CkeckimgLoad"> 
+  <div class="goods-item" @click="jumpDetail">
+    <!-- <img :src="showImage" alt="" @load= "CkeckimgLoad">  -->
+    <img v-lazy="showImage" alt="" @load= "CkeckimgLoad"> 
       <div class="goods-info">
         <p>{{goodsItem.title}}</p>
         <span class="price">{{goodsItem.price}}</span>
@@ -20,9 +21,24 @@ export default {
       }
     }
   },
+  computed:{
+    showImage(){
+      return this.goodsItem.image || this.goodsItem.show.img
+    }
+  },
   methods:{
     CkeckimgLoad(){
+      //通过路由解决多个页面使用滚动刷新的办法
+      // if (this.$route.path.indexOf('/home')){
+      //   this.$bus.$emit('homeImgLoadAfter')
+      // }else if (this.$route.path.indexOf('/detail')) {
+      //   this.$bus.$emit('detailImgLoadAfter')
+      // }
+      
       this.$bus.$emit('imgLoadAfter')
+    },
+    jumpDetail(){
+      this.$router.push('/detail/' + this.goodsItem.iid)
     }
   }
 }

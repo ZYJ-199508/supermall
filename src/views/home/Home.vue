@@ -1,7 +1,7 @@
 <template>
   <div id = "home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-
+ 
     <tab-control 
     :titles = titles 
     ref="tabControl1" 
@@ -10,9 +10,9 @@
     v-show="isTabFixed"></tab-control>
 
     <scroll 
-      class="content" 
+      class="wrapper" 
       ref="scroll" 
-      :probe-type = "3" 
+      :probe-type = "3"
       @scroll = "scrollContent"
       :pull-up-type="true"
       @pullingUp = "loadGoods">
@@ -40,13 +40,12 @@
   import HomeRecommendView from './childComponents/HomeRecommendView.vue'
   import FeatureView from './childComponents/FeatureView.vue'
   import Scroll from 'components/common/scroll/Scroll.vue'
-  import BackTop from 'components/content/backTop/BackTop'
 
   import TabControl from 'components/content/tabControl/TabControl'
   import GoodsList from 'components/content/goods/GoodsList'
 
+  import {itemListenerMixin,listenerBackTop} from 'common/mixin' 
   import {getHomeMultidata,getHomeGoods} from 'network/home'
-  import {debounce} from 'common/utils'
   
   export default {
     name: "Home",
@@ -57,9 +56,9 @@
       FeatureView,
       TabControl,
       GoodsList,
-      Scroll,
-      BackTop
+      Scroll
     },
+    mixins:[itemListenerMixin,listenerBackTop],
     data(){
       return{
         banners:[],
@@ -71,9 +70,10 @@
           'sell':{page:0,list:[]},
         },
         currenttype:"pop",
-        testScrollContent:false,
         tabOffsetTop:10000,
-        isTabFixed:false
+        isTabFixed:false,
+        saveY:0,
+        itemImageListener:null
       }
     },
     computed:{
@@ -91,18 +91,32 @@
       this.FgetHomeGoods('sell')
 
     },
-    mounted(){
-      //！！特别注意:将函数debounce的return函数赋给refresh,然后不断调用refresh()
-      //！！只会不断运行return部分的内容,所以let timer = null 只起一次作用
-      const refresh = debounce(this.$refs.scroll.useRefresh,500)
-      this.$bus.$on('imgLoadAfter',()=>{
-         refresh()
-      })
+    // mounted(){
+    //   //！！特别注意:将函数debounce的return函数赋给refresh,然后不断调用refresh()
+    //   //！！只会不断运行return部分的内容,所以let timer = null 只起一次作用
+    //   const refresh = debounce(this.$refs.scroll.useRefresh,500)
+    //   this.itemImageListener = ()=>{
+    //      refresh()
+    //   }
+    //   this.$bus.$on('imgLoadAfter',this.itemImageListener)
+    // },
+    // destroyed(){
       
-      
+    // },
+    activated(){
+      // console.log(1111111);
+      this.$refs.scroll.useRefresh()
+      this.$refs.scroll.useScrollTo(0,this.saveY,0)
+
     },
-    methods:{
+    deactivated(){
+      this.saveY = this.$refs.scroll.useScrollY()
       
+      //要传入事件+函数，告诉程序取消哪个事件的哪个函数，不然就会把这个事件下的所有函数都取消了
+      this.$bus.$off('imgLoadAfter',this.itemImageListener)
+    },
+
+    methods:{
       /**
        * 事件监听相关
        */
@@ -121,7 +135,7 @@
         this.$refs.tabControl1.currentIndex = index;
         this.$refs.tabControl2.currentIndex = index;
       },
-
+  
       /**
        * 网络请求相关
        */
@@ -139,10 +153,6 @@
           this.goods[type].page += 1
           this.$refs.scroll.usefinishPullUp()
         })
-      },
-
-      clickBackTap(){
-        this.$refs.scroll.useScrollTo(0,0)
       },
       scrollContent(position){
         // console.log(position.y);
@@ -190,7 +200,7 @@
   }
 
   
-  .content{
+  .wrapper{
     /* 方法一：计算 */
     /*注意：像calc这种计算属性前后要加空格，不然不起作用 */
     /* height: calc(100% - 93px);
